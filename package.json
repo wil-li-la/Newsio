@@ -1,0 +1,32 @@
+{
+  "name": "newsflow-v2",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NewsFlow - Multi-platform news aggregation app",
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "docker-compose up",
+    "dev:build": "docker-compose up --build",
+    "dev:down": "docker-compose down",
+    "dev:clean": "docker-compose down -v",
+    "backend": "npm --prefix services/backend run dev",
+    "web": "npm --prefix apps/web run dev",
+    "mobile": "npm --prefix apps/mobile start",
+    "mobile:ios": "npm --prefix apps/mobile run ios",
+    "mobile:android": "npm --prefix apps/mobile run android",
+    "install:all": "npm install && npm --prefix services/backend install && npm --prefix apps/web install && npm --prefix apps/mobile install",
+    "db:migrate": "npm --prefix services/backend run migrate",
+    "db:seed": "npm --prefix services/backend run seed"
+  },
+  "keywords": ["news", "react", "react-native", "postgresql", "docker"],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: newsflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-newsflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-newsflow_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-newsflow}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./services/backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U newsflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - newsflow-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./services/backend
+      dockerfile: Dockerfile
+    container_name: newsflow-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-3000}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://newsflow:newsflow_dev_password@postgres:5432/newsflow}
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./services/backend:/app
+      - /app/node_modules
+    networks:
+      - newsflow-network
+    command: npm run dev
+
+  # Web Frontend
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: newsflow-web
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+    networks:
+      - newsflow-network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  newsflow-network:
+    driver: bridge
