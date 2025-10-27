@@ -11,7 +11,7 @@ const sampleArticles = [
     source: 'Tech Daily',
     category: 'Technology',
     region: 'Global',
-    published_at: new Date(Date.now() - 1000 * 60 * 60 * 2) // 2 hours ago
+    published_at: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
   },
   {
     article_id: 'demo-2',
@@ -22,7 +22,7 @@ const sampleArticles = [
     source: 'Global News',
     category: 'Environment',
     region: 'Global',
-    published_at: new Date(Date.now() - 1000 * 60 * 60 * 5) // 5 hours ago
+    published_at: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
   },
   {
     article_id: 'demo-3',
@@ -33,7 +33,7 @@ const sampleArticles = [
     source: 'Financial Times',
     category: 'Business',
     region: 'US',
-    published_at: new Date(Date.now() - 1000 * 60 * 60 * 8) // 8 hours ago
+    published_at: new Date(Date.now() - 1000 * 60 * 60 * 8), // 8 hours ago
   },
   {
     article_id: 'demo-4',
@@ -44,7 +44,7 @@ const sampleArticles = [
     source: 'Health Today',
     category: 'Health',
     region: 'Europe',
-    published_at: new Date(Date.now() - 1000 * 60 * 60 * 12) // 12 hours ago
+    published_at: new Date(Date.now() - 1000 * 60 * 60 * 12), // 12 hours ago
   },
   {
     article_id: 'demo-5',
@@ -55,7 +55,7 @@ const sampleArticles = [
     source: 'Sports Network',
     category: 'Sports',
     region: 'US',
-    published_at: new Date(Date.now() - 1000 * 60 * 60 * 18) // 18 hours ago
+    published_at: new Date(Date.now() - 1000 * 60 * 60 * 18), // 18 hours ago
   },
   {
     article_id: 'demo-6',
@@ -66,7 +66,7 @@ const sampleArticles = [
     source: 'Science Weekly',
     category: 'Technology',
     region: 'Asia',
-    published_at: new Date(Date.now() - 1000 * 60 * 60 * 24) // 1 day ago
+    published_at: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
   },
   {
     article_id: 'demo-7',
@@ -77,7 +77,7 @@ const sampleArticles = [
     source: 'Auto News',
     category: 'Technology',
     region: 'Global',
-    published_at: new Date(Date.now() - 1000 * 60 * 60 * 30) // 30 hours ago
+    published_at: new Date(Date.now() - 1000 * 60 * 60 * 30), // 30 hours ago
   },
   {
     article_id: 'demo-8',
@@ -88,7 +88,7 @@ const sampleArticles = [
     source: 'History Channel',
     category: 'Culture',
     region: 'Middle East',
-    published_at: new Date(Date.now() - 1000 * 60 * 60 * 36) // 36 hours ago
+    published_at: new Date(Date.now() - 1000 * 60 * 60 * 36), // 36 hours ago
   },
   {
     article_id: 'demo-9',
@@ -99,7 +99,7 @@ const sampleArticles = [
     source: 'Space News',
     category: 'Science',
     region: 'US',
-    published_at: new Date(Date.now() - 1000 * 60 * 60 * 48) // 2 days ago
+    published_at: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
   },
   {
     article_id: 'demo-10',
@@ -110,8 +110,8 @@ const sampleArticles = [
     source: 'Startup Weekly',
     category: 'Business',
     region: 'Europe',
-    published_at: new Date(Date.now() - 1000 * 60 * 60 * 60) // 2.5 days ago
-  }
+    published_at: new Date(Date.now() - 1000 * 60 * 60 * 60), // 2.5 days ago
+  },
 ];
 
 async function seed() {
@@ -133,8 +133,8 @@ async function seed() {
           article.source,
           article.category,
           article.region,
-          article.published_at
-        ]
+          article.published_at,
+        ],
       );
     }
 
@@ -146,7 +146,7 @@ async function seed() {
        VALUES ($1, $2, $3)
        ON CONFLICT (email) DO NOTHING
        RETURNING id`,
-      ['demo@newsflow.com', 'Demo User', 'demo']
+      ['demo@newsflow.com', 'Demo User', 'demo'],
     );
 
     if (demoUser.rows.length > 0) {

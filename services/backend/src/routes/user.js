@@ -11,7 +11,7 @@ router.post('/activity', async (req, res) => {
     if (!userId || !articleId || !action) {
       return res.status(400).json({ 
         success: false, 
-        error: 'userId, articleId, and action are required' 
+        error: 'userId, articleId, and action are required', 
       });
     }
 
@@ -19,7 +19,7 @@ router.post('/activity', async (req, res) => {
     await db.query(
       `INSERT INTO user_activity (user_id, article_id, action, metadata)
        VALUES ($1, $2, $3, $4)`,
-      [userId, articleId, action, JSON.stringify(metadata || {})]
+      [userId, articleId, action, JSON.stringify(metadata || {})],
     );
 
     // Mark as seen if viewed or liked
@@ -28,7 +28,7 @@ router.post('/activity', async (req, res) => {
         `INSERT INTO seen_articles (user_id, article_id)
          VALUES ($1, $2)
          ON CONFLICT (user_id, article_id) DO NOTHING`,
-        [userId, articleId]
+        [userId, articleId],
       );
     }
 
@@ -42,7 +42,7 @@ router.post('/activity', async (req, res) => {
     console.error('Error tracking activity:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to track activity' 
+      error: 'Failed to track activity', 
     });
   }
 });
@@ -54,7 +54,7 @@ router.get('/:userId/preferences', async (req, res) => {
 
     const result = await db.query(
       'SELECT * FROM user_preferences WHERE user_id = $1',
-      [userId]
+      [userId],
     );
 
     if (result.rows.length === 0) {
@@ -63,20 +63,20 @@ router.get('/:userId/preferences', async (req, res) => {
         data: {
           preferred_categories: {},
           preferred_sources: {},
-          preferred_regions: {}
-        }
+          preferred_regions: {},
+        },
       });
     }
 
     res.json({
       success: true,
-      data: result.rows[0]
+      data: result.rows[0],
     });
   } catch (error) {
     console.error('Error fetching preferences:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to fetch preferences' 
+      error: 'Failed to fetch preferences', 
     });
   }
 });
@@ -88,13 +88,13 @@ async function updateUserPreferences(userId, metadata) {
   // Get current preferences
   const result = await db.query(
     'SELECT * FROM user_preferences WHERE user_id = $1',
-    [userId]
+    [userId],
   );
 
-  let preferences = result.rows[0] || {
+  const preferences = result.rows[0] || {
     preferred_categories: {},
     preferred_sources: {},
-    preferred_regions: {}
+    preferred_regions: {},
   };
 
   // Increment counters
@@ -125,8 +125,8 @@ async function updateUserPreferences(userId, metadata) {
       userId,
       JSON.stringify(preferences.preferred_categories),
       JSON.stringify(preferences.preferred_sources),
-      JSON.stringify(preferences.preferred_regions)
-    ]
+      JSON.stringify(preferences.preferred_regions),
+    ],
   );
 }
 

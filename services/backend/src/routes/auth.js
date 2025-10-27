@@ -11,20 +11,20 @@ router.post('/register', async (req, res) => {
     if (!email) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Email is required' 
+        error: 'Email is required', 
       });
     }
 
     // Check if user exists
     const existing = await db.query(
       'SELECT id FROM users WHERE email = $1',
-      [email]
+      [email],
     );
 
     if (existing.rows.length > 0) {
       return res.json({
         success: true,
-        data: existing.rows[0]
+        data: existing.rows[0],
       });
     }
 
@@ -33,18 +33,18 @@ router.post('/register', async (req, res) => {
       `INSERT INTO users (email, username, provider)
        VALUES ($1, $2, 'demo')
        RETURNING id, email, username, created_at`,
-      [email, username || email.split('@')[0]]
+      [email, username || email.split('@')[0]],
     );
 
     res.json({
       success: true,
-      data: result.rows[0]
+      data: result.rows[0],
     });
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Registration failed' 
+      error: 'Registration failed', 
     });
   }
 });
@@ -56,25 +56,25 @@ router.get('/user/:email', async (req, res) => {
 
     const result = await db.query(
       'SELECT id, email, username, avatar_url, created_at FROM users WHERE email = $1',
-      [email]
+      [email],
     );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ 
         success: false, 
-        error: 'User not found' 
+        error: 'User not found', 
       });
     }
 
     res.json({
       success: true,
-      data: result.rows[0]
+      data: result.rows[0],
     });
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to fetch user' 
+      error: 'Failed to fetch user', 
     });
   }
 });

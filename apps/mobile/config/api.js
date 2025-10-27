@@ -1,45 +1,81 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
-// API 配置
-const API_CONFIG = {
-  // 本地開發
+/**
+ * API 配置
+ * 
+ * 優先順序：
+ * 1. 環境變數 EXPO_PUBLIC_API_URL（從 .env 讀取）
+ * 2. Expo manifest 中的 hostUri（自動偵測開發伺服器 IP）
+ * 3. Fallback 預設值
+ * 
+ * 設定方式：
+ * 1. 複製 .env.example 為 .env
+ * 2. 執行 `ipconfig getifaddr en0` (Mac) 或 `ipconfig` (Windows) 取得本機 IP
+ * 3. 在 .env 中設定：EXPO_PUBLIC_API_URL=http://YOUR_IP:3000
+ * 4. 重啟 Expo: npm start
+ */
+
+// 從環境變數讀取 API URL
+const ENV_API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+// 從 Expo manifest 自動偵測開發伺服器 IP
+const getAutoDetectedUrl = () => {
+  try {
+    // Expo 開發時會提供 hostUri (例如: 10.0.0.160:8081)
+    const hostUri = Constants.expoConfig?.hostUri;
+    if (hostUri) {
+      const host = hostUri.split(':')[0];
+      return `http://${host}:3000`;
+    }
+  } catch (error) {
+    console.warn('無法自動偵測 IP:', error);
+  }
+  return null;
+};
+
+// Fallback 配置
+const FALLBACK_CONFIG = {
   development: {
-    // iOS 模擬器使用實際 IP（從 Expo 終端顯示的 IP）
-    // 如果 Expo 顯示不同的 IP，請修改此處
-    ios: 'http://172.20.10.2:3000',
-    // Android 模擬器使用特殊 IP
-    android: 'http://10.0.2.2:3000',
-    // 實體裝置使用電腦的區域網路 IP（需要修改成你的 IP）
-    // 執行 `ipconfig getifaddr en0` 查詢你的 IP
-    physical: 'http://172.20.10.2:3000',
+    ios: 'http://localhost:3000',
+    android: 'http://10.0.2.2:3000', // Android 模擬器特殊 IP
+    default: 'http://localhost:3000',
   },
-  // 生產環境
   production: {
     ios: 'https://your-api-domain.com',
     android: 'https://your-api-domain.com',
-    physical: 'https://your-api-domain.com',
-  }
+    default: 'https://your-api-domain.com',
+  },
 };
-
-// 判斷當前環境
-const ENV = __DEV__ ? 'development' : 'production';
-
-// 判斷是否為實體裝置（簡化版本，實際可能需要更複雜的判斷）
-const isPhysicalDevice = false; // 如果在實體裝置測試，改為 true
 
 // 取得 API Base URL
 export const getApiUrl = () => {
-  const config = API_CONFIG[ENV];
-  
-  if (isPhysicalDevice) {
-    return config.physical;
+  // 1. 優先使用環境變數
+  if (ENV_API_URL) {
+    console.log('📡 使用環境變數 API URL:', ENV_API_URL);
+    return ENV_API_URL;
   }
-  
-  return Platform.select({
+
+  // 2. 開發模式下嘗試自動偵測
+  if (__DEV__) {
+    const autoUrl = getAutoDetectedUrl();
+    if (autoUrl) {
+      console.log('📡 自動偵測 API URL:', autoUrl);
+      return autoUrl;
+    }
+  }
+
+  // 3. 使用 Fallback
+  const env = __DEV__ ? 'development' : 'production';
+  const config = FALLBACK_CONFIG[env];
+  const fallbackUrl = Platform.select({
     ios: config.ios,
     android: config.android,
-    default: config.ios,
+    default: config.default,
   });
+  
+  console.log('📡 使用 Fallback API URL:', fallbackUrl);
+  return fallbackUrl;
 };
 
 export const API_BASE_URL = getApiUrl();

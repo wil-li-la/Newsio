@@ -1,61 +1,61 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import { useState, useEffect } from 'react';
+import './App.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function App() {
-  const [articles, setArticles] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [searchQuery, setSearchQuery] = useState('')
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    fetchArticles()
-  }, [])
+    fetchArticles();
+  }, []);
 
   const fetchArticles = async () => {
     try {
-      setLoading(true)
-      const response = await fetch(`${API_URL}/api/news?limit=10`)
-      const data = await response.json()
+      setLoading(true);
+      const response = await fetch(`${API_URL}/api/news?limit=10`);
+      const data = await response.json();
       
       if (data.success) {
-        setArticles(data.data)
+        setArticles(data.data);
       } else {
-        setError('Failed to load articles')
+        setError('Failed to load articles');
       }
     } catch (err) {
-      setError('Failed to connect to API: ' + err.message)
+      setError('Failed to connect to API: ' + err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleSearch = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!searchQuery.trim()) {
-      fetchArticles()
-      return
+      fetchArticles();
+      return;
     }
 
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await fetch(`${API_URL}/api/news/search`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: searchQuery })
-      })
-      const data = await response.json()
+        body: JSON.stringify({ query: searchQuery }),
+      });
+      const data = await response.json();
       
       if (data.success) {
-        setArticles(data.data)
+        setArticles(data.data);
       }
     } catch (err) {
-      setError('Search failed: ' + err.message)
+      setError('Search failed: ' + err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="app">
@@ -123,7 +123,7 @@ function App() {
         <p>Running in Docker 🐳</p>
       </footer>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

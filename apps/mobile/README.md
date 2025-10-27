@@ -12,16 +12,38 @@ React Native + Expo 新聞聚合應用程式
 
 ## 🚀 快速開始
 
-### 1. 確保 Backend 正在運行
+### 1. 設定環境變數（自動）
+
+```bash
+# 在專案根目錄執行自動設定腳本
+./scripts/setup-mobile-env.sh
+```
+
+這個腳本會：
+- 自動偵測你的本機 IP
+- 更新 `.env` 中的 `EXPO_PUBLIC_API_URL`
+- 讓 Mobile App 能正確連接到 Docker 中的 Backend
+
+**手動設定（可選）：**
+```bash
+# 1. 查詢本機 IP
+ipconfig getifaddr en0  # Mac
+ipconfig                # Windows
+
+# 2. 編輯 .env 檔案
+EXPO_PUBLIC_API_URL=http://YOUR_IP:3000
+```
+
+### 2. 啟動 Backend
 
 ```bash
 # 在專案根目錄
 docker-compose up
 ```
 
-Backend API 應該運行在 `http://localhost:3000`
+Backend API 會運行在 `http://localhost:3000`（容器內）和 `http://YOUR_IP:3000`（網路內）
 
-### 2. 啟動 Mobile App
+### 3. 啟動 Mobile App
 
 ```bash
 # 在 apps/mobile 目錄
@@ -31,14 +53,14 @@ npm start
 npm run mobile
 ```
 
-### 3. 選擇測試方式
+### 4. 選擇測試方式
 
 #### 方式 A：iOS 模擬器（推薦）
 ```bash
 npm run ios
 ```
 - 會自動開啟 iOS Simulator
-- 直接使用 `localhost:3000` 連接 Backend
+- 自動使用 `.env` 中設定的 API URL
 
 #### 方式 B：實體手機 + Expo Go
 1. 在手機上安裝 **Expo Go** app
@@ -47,7 +69,7 @@ npm run ios
 
 2. 掃描終端機顯示的 QR code
 
-3. **重要：** 修改 API 配置
+3. **自動連接：** App 會使用 `.env` 中設定的 API URL
    ```bash
    # 查詢你的電腦 IP
    ipconfig getifaddr en0

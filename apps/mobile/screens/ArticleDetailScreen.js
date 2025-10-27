@@ -10,7 +10,7 @@ export default function ArticleDetailScreen({ route, navigation }) {
       if (supported) {
         await Linking.openURL(article.url);
       } else {
-        console.error("無法打開 URL:", article.url);
+        console.error('無法打開 URL:', article.url);
       }
     }
   };

@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
       offset = 0, 
       category, 
       source,
-      search 
+      search, 
     } = req.query;
 
     let query = `
@@ -42,7 +42,7 @@ router.get('/', async (req, res) => {
       paramCount++;
     }
 
-    query += ` ORDER BY published_at DESC NULLS LAST, created_at DESC`;
+    query += ' ORDER BY published_at DESC NULLS LAST, created_at DESC';
     query += ` LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
     params.push(parseInt(limit), parseInt(offset));
 
@@ -51,13 +51,13 @@ router.get('/', async (req, res) => {
     res.json({
       success: true,
       count: result.rows.length,
-      data: result.rows
+      data: result.rows,
     });
   } catch (error) {
     console.error('Error fetching news:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to fetch news articles' 
+      error: 'Failed to fetch news articles', 
     });
   }
 });
@@ -68,25 +68,25 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
     const result = await db.query(
       'SELECT * FROM articles WHERE id = $1 OR article_id = $1',
-      [id]
+      [id],
     );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ 
         success: false, 
-        error: 'Article not found' 
+        error: 'Article not found', 
       });
     }
 
     res.json({
       success: true,
-      data: result.rows[0]
+      data: result.rows[0],
     });
   } catch (error) {
     console.error('Error fetching article:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to fetch article' 
+      error: 'Failed to fetch article', 
     });
   }
 });
@@ -99,7 +99,7 @@ router.post('/search', async (req, res) => {
     if (!searchQuery) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Search query is required' 
+        error: 'Search query is required', 
       });
     }
 
@@ -112,19 +112,19 @@ router.post('/search', async (req, res) => {
       WHERE search_vector @@ plainto_tsquery('english', $1)
       ORDER BY rank DESC, published_at DESC
       LIMIT $2`,
-      [searchQuery, parseInt(limit)]
+      [searchQuery, parseInt(limit)],
     );
 
     res.json({
       success: true,
       count: result.rows.length,
-      data: result.rows
+      data: result.rows,
     });
   } catch (error) {
     console.error('Error searching articles:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Search failed' 
+      error: 'Search failed', 
     });
   }
 });
