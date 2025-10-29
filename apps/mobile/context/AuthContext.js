@@ -38,11 +38,25 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const signUp = async (email, password) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+  const signUp = async (email, password, options = {}) => {
+    console.log('🚀 signUp called with email:', email);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        // Mobile 使用 newsflow://，Web 應該使用完整的 callback URL
+        emailRedirectTo: options.emailRedirectTo || 'newsflow://',
+        ...options,
+      },
+    });
+    
     if (error) {
+      console.error('❌ signUp error:', error);
       throw error;
     }
+    
+    console.log('✅ signUp success:', data);
+    return data;
   };
 
   const signOut = async () => {

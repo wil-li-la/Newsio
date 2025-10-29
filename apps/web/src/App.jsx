@@ -1,17 +1,32 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './App.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function App() {
+  const navigate = useNavigate();
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showVerificationSuccess, setShowVerificationSuccess] = useState(false);
 
   useEffect(() => {
+    // 檢查 URL 中是否有驗證相關的參數
+    const hash = window.location.hash;
+    const search = window.location.search;
+    
+    if (hash.includes('access_token') || hash.includes('error') || 
+        search.includes('token_hash') || search.includes('type=')) {
+      console.log('🔀 Detected auth params, redirecting to callback...');
+      // 重定向到 callback 頁面
+      navigate('/auth/callback' + search + hash);
+      return;
+    }
+    
     fetchArticles();
-  }, []);
+  }, [navigate]);
 
   const fetchArticles = async () => {
     try {

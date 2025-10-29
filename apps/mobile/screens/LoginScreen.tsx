@@ -15,7 +15,7 @@ import { useAuth } from '../context/AuthContext';
 
 const logoSource = require('../assets/icon.png');
 
-export default function LoginScreen({ navigation: _navigation }) {
+export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(null);
@@ -51,23 +51,29 @@ export default function LoginScreen({ navigation: _navigation }) {
   };
 
   const handleSignUp = async () => {
+    console.log('📝 handleSignUp triggered');
+    
     if (!validateFields()) {
+      console.log('⚠️ Validation failed');
       return;
     }
 
     try {
+      console.log('🔄 Starting sign up process...');
       setSubmitting('signup');
-      await signUp(trimmedEmail, password);
-      Alert.alert(
-        'Check Your Email',
-        'We sent you a confirmation link. Complete the sign-up process there and then sign in.',
-      );
+      const result = await signUp(trimmedEmail, password);
+      console.log('✅ Sign up completed:', result);
+      
+      // 導航到註冊成功頁面
+      navigation.navigate('SignUpSuccess');
     } catch (error) {
+      console.error('❌ handleSignUp error:', error);
       const message = error?.message || 'Unable to create an account right now. Please try again later.';
       setErrorMessage(message);
       Alert.alert('Sign Up Failed', message);
     } finally {
       setSubmitting(null);
+      console.log('🏁 handleSignUp finished');
     }
   };
 
