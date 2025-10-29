@@ -26,7 +26,9 @@
     "mobile:ios": "npm --prefix apps/mobile run ios",
     "mobile:android": "npm --prefix apps/mobile run android",
     "db:migrate": "npm --prefix services/backend run migrate",
-    "db:seed": "npm --prefix services/backend run seed"
+    "db:seed": "npm --prefix services/backend run seed",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "keywords": [
     "news",
@@ -43,5 +45,10 @@
   },
   "devDependencies": {
     "turbo": "^2.5.8"
+  },
+  "dependencies": {
+    "expo": "~54.0.20",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
   }
 }
