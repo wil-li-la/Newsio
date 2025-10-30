@@ -1,7 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 
-export default function LibraryScreen({ navigation }) {
+import { TabParamList } from '../types/navigation';
+
+type LibraryScreenProps = BottomTabScreenProps<TabParamList, 'Library'>;
+
+export default function LibraryScreen({ navigation }: LibraryScreenProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Saved Library</Text>

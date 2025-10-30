@@ -1,7 +1,12 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 
-export default function SearchScreen({ navigation }) {
+import { TabParamList } from '../types/navigation';
+
+type SearchScreenProps = BottomTabScreenProps<TabParamList, 'Search'>;
+
+export default function SearchScreen({ navigation }: SearchScreenProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Search News</Text>

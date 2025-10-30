@@ -26,7 +26,11 @@ export default function SettingsScreen() {
               console.log('✅ Sign out successful');
             } catch (error) {
               console.error('❌ Sign out error:', error);
-              Alert.alert('Sign Out Failed', error?.message || 'Unable to sign out. Please try again.');
+              const message =
+                error instanceof Error
+                  ? error.message
+                  : 'Unable to sign out. Please try again.';
+              Alert.alert('Sign Out Failed', message);
             } finally {
               setSigningOut(false);
             }

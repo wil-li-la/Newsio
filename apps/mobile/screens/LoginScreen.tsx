@@ -12,13 +12,18 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '../context/AuthContext';
+import { StackScreenProps } from '@react-navigation/stack';
+
+import { RootStackParamList } from '../types/navigation';
 
 const logoSource = require('../assets/icon.png');
 
-export default function LoginScreen({ navigation }) {
+type LoginScreenProps = StackScreenProps<RootStackParamList, 'Login'>;
+
+export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [submitting, setSubmitting] = useState(null);
+  const [submitting, setSubmitting] = useState<'signin' | 'signup' | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const { signIn, signUp } = useAuth();
 
@@ -42,7 +47,8 @@ export default function LoginScreen({ navigation }) {
       setSubmitting('signin');
       await signIn(trimmedEmail, password);
     } catch (error) {
-      const message = error?.message || 'Unable to sign in. Please try again later.';
+      const message =
+        error instanceof Error ? error.message : 'Unable to sign in. Please try again later.';
       setErrorMessage(message);
       Alert.alert('Sign In Failed', message);
     } finally {
@@ -68,7 +74,10 @@ export default function LoginScreen({ navigation }) {
       navigation.navigate('SignUpSuccess');
     } catch (error) {
       console.error('❌ handleSignUp error:', error);
-      const message = error?.message || 'Unable to create an account right now. Please try again later.';
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Unable to create an account right now. Please try again later.';
       setErrorMessage(message);
       Alert.alert('Sign Up Failed', message);
     } finally {

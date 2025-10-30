@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { StackScreenProps } from '@react-navigation/stack';
 
-export default function EmailVerificationScreen({ route }) {
-  const navigation = useNavigation();
+import { RootStackParamList } from '../types/navigation';
+
+type EmailVerificationScreenProps = StackScreenProps<
+  RootStackParamList,
+  'EmailVerification'
+>;
+
+export default function EmailVerificationScreen({ navigation, route }: EmailVerificationScreenProps) {
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const { type } = route.params || {};
 

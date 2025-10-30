@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet, Linking } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from '@expo/vector-icons/Ionicons';
+
+// Screens
 import LoginScreen from './screens/LoginScreen';
 import ArticleDetailScreen from './screens/ArticleDetailScreen';
 import SearchScreen from './screens/SearchScreen';
@@ -13,12 +15,20 @@ import LibraryScreen from './screens/LibraryScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import EmailVerificationScreen from './screens/EmailVerificationScreen';
 import SignUpSuccessScreen from './screens/SignUpSuccessScreen';
+
+// Context and Services
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { supabase } from './lib/supabase';
 
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+import { RootStackParamList, TabParamList } from './types/navigation';
 
-const TAB_ICON = {
+const Stack = createStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
+const navigationRef = createNavigationContainerRef<RootStackParamList>();
+
+type TabIconName = React.ComponentProps<typeof Ionicons>['name'];
+
+const TAB_ICON: Record<keyof TabParamList, TabIconName> = {
   Newsfeed: 'newspaper-outline',
   Search: 'search-outline',
   Library: 'bookmark-outline',
@@ -58,31 +68,26 @@ function MainTabs() {
 
 function RootNavigator() {
   const { session, initializing } = useAuth();
-  const navigationRef = useRef();
 
   useEffect(() => {
-    // 處理 Deep Linking
-    const handleDeepLink = async (event) => {
+    const handleDeepLink = async (event: { url: string }) => {
       const url = event.url;
       console.log('📱 Deep link received:', url);
       
       if (url) {
-        // 解析 URL 參數
         const hashPart = url.split('#')[1];
         const queryPart = url.split('?')[1];
         const params = new URLSearchParams(hashPart || queryPart || '');
         
-        const type = params.get('type');
+        const type = params.get('type') as 'signup' | 'email_change' | null;
         const accessToken = params.get('access_token');
         const refreshToken = params.get('refresh_token');
         
         console.log('🔑 URL params:', { type, hasToken: !!accessToken });
         
-        // 如果有 access token，設定 session
         if (accessToken && refreshToken) {
           try {
             console.log('🔐 Setting session from tokens...');
-            const { supabase } = require('./lib/supabase');
             const { data, error } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken,
@@ -98,9 +103,7 @@ function RootNavigator() {
           }
         }
         
-        // 如果是註冊或 email 變更的驗證
         if (type === 'signup' || type === 'email_change') {
-          // 導航到驗證頁面
           setTimeout(() => {
             navigationRef.current?.navigate('EmailVerification', { type });
           }, 100);
@@ -108,10 +111,8 @@ function RootNavigator() {
       }
     };
 
-    // 監聽 Deep Link
     const subscription = Linking.addEventListener('url', handleDeepLink);
 
-    // 檢查初始 URL（app 被 deep link 啟動）
     Linking.getInitialURL().then((url) => {
       if (url) {
         handleDeepLink({ url });
@@ -133,7 +134,6 @@ function RootNavigator() {
 
   return (
     <Stack.Navigator
-      ref={navigationRef}
       screenOptions={{
         headerShown: false,
       }}
@@ -175,16 +175,16 @@ function RootNavigator() {
   );
 }
 
-export default function App() {
+const App: React.FC = () => {
   return (
     <AuthProvider>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <RootNavigator />
         <StatusBar style="auto" />
       </NavigationContainer>
     </AuthProvider>
   );
-}
+};
 
 const styles = StyleSheet.create({
   loaderContainer: {
@@ -194,3 +194,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+export default App;

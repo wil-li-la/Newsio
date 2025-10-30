@@ -1,8 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { StackScreenProps } from '@react-navigation/stack';
 
-export default function SignUpSuccessScreen({ navigation }) {
+import { RootStackParamList } from '../types/navigation';
+
+type SignUpSuccessScreenProps = StackScreenProps<RootStackParamList, 'SignUpSuccess'>;
+
+export default function SignUpSuccessScreen({ navigation }: SignUpSuccessScreenProps) {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
