@@ -57,7 +57,7 @@ npm run mobile
 
 #### 方式 A：iOS 模擬器（推薦）
 ```bash
-npm run ios
+npx expo run:ios
 ```
 - 會自動開啟 iOS Simulator
 - 自動使用 `.env` 中設定的 API URL
