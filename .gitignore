@@ -40,3 +40,6 @@ apps/mobile/android/
 # Misc
 *.pem
 .cache/
+
+
+docs/*
