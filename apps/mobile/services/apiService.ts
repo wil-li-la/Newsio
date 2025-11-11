@@ -10,14 +10,16 @@ type SupabaseArticleRow = {
   article_id: string;
   title: string | null;
   description: string | null;
-  structuredSummary: string | null;
-  imageUrl: unknown;
-  source: string | null;
+  ai_summary: string | null;
+  original_url: string | null;
+  image_url: string | null;
   category: string | null;
-  labels: unknown;
-  publishedAt: string | null;
-  timestamp: string | null;
-  url: string | null;
+  labels: string[] | null;
+  published_at: string | null;
+  source_id: string | null;
+  sources: {
+    name: string;
+  } | null;
 };
 
 const getSummarizedArticles = async ({
@@ -28,24 +30,23 @@ const getSummarizedArticles = async ({
   const fetchLimit = limit + uniqueExclude.length;
 
   const { data, error } = await supabase
-    .from('newstable')
-    .select(
-      [
-        'article_id',
-        'title',
-        'description',
-        '"structuredSummary"',
-        '"imageUrl"',
-        'source',
-        'category',
-        'labels',
-        '"publishedAt"',
-        'timestamp',
-        'url',
-      ].join(', '),
-    )
-    .order('publishedAt', { ascending: false, nullsFirst: false })
-    .order('timestamp', { ascending: false, nullsFirst: false })
+    .from('articles')
+    .select(`
+      article_id,
+      title,
+      description,
+      ai_summary,
+      original_url,
+      image_url,
+      category,
+      labels,
+      published_at,
+      source_id,
+      sources (
+        name
+      )
+    `)
+    .order('published_at', { ascending: false, nullsFirst: false })
     .limit(fetchLimit);
 
   if (error) {
@@ -59,49 +60,16 @@ const getSummarizedArticles = async ({
     : [];
   const excludeSet = new Set(uniqueExclude);
 
-  const mapImageUrl = (raw: unknown): string | undefined => {
-    const pickFromObject = (value: Record<string, unknown>): string | undefined => {
-      const preferredKeys = ['url', 'src', 'href', 'original', 'large', 'medium', 'small'];
-      for (const key of preferredKeys) {
-        const candidate = value[key];
-        if (typeof candidate === 'string' && candidate.trim().startsWith('http')) {
-          return candidate.trim();
-        }
-      }
-
-      // Fallback: search any string value within the object
-      for (const candidate of Object.values(value)) {
-        if (typeof candidate === 'string' && candidate.trim().startsWith('http')) {
-          return candidate.trim();
-        }
-      }
-
-      return undefined;
-    };
-
-    if (typeof raw === 'string') {
-      const trimmed = raw.trim();
-      return trimmed.startsWith('http') ? trimmed : undefined;
+  // Image URL is now a simple string in the new schema
+  const mapImageUrl = (raw: string | null): string | undefined => {
+    if (typeof raw === 'string' && raw.trim().startsWith('http')) {
+      return raw.trim();
     }
-
-    if (Array.isArray(raw)) {
-      for (const item of raw) {
-        const candidate = mapImageUrl(item);
-        if (candidate) {
-          return candidate;
-        }
-      }
-      return undefined;
-    }
-
-    if (raw && typeof raw === 'object') {
-      return pickFromObject(raw as Record<string, unknown>);
-    }
-
     return undefined;
   };
 
-  const mapLabels = (raw: unknown): string[] => {
+  // Labels are now a proper string array in the new schema
+  const mapLabels = (raw: string[] | null): string[] => {
     if (Array.isArray(raw)) {
       return raw.filter((item): item is string => typeof item === 'string');
     }
@@ -114,14 +82,14 @@ const getSummarizedArticles = async ({
     .map<NewsArticle>((row) => ({
       id: row.article_id,
       title: row.title ?? undefined,
-      description: row.description ?? undefined,
-      structuredSummary: row.structuredSummary ?? undefined,
-      url: row.url ?? undefined,
-      imageUrl: mapImageUrl(row.imageUrl),
-      source: row.source ?? undefined,
+      description: row.description ?? row.ai_summary ?? undefined,
+      structuredSummary: row.ai_summary ?? undefined,
+      url: row.original_url ?? undefined,
+      imageUrl: mapImageUrl(row.image_url),
+      source: row.sources?.name ?? undefined,
       category: row.category ?? undefined,
-      publishedAt: row.publishedAt ?? undefined,
-      timestamp: row.timestamp ?? row.publishedAt ?? undefined,
+      publishedAt: row.published_at ?? undefined,
+      timestamp: row.published_at ?? undefined,
       labels: mapLabels(row.labels),
     }));
 };
