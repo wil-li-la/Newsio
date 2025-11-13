@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SwipeCard from '../components/SwipeCard';
 import ArticleCard from '../components/ArticleCard';
 import { apiService } from '../services/apiService';
+import { recordSentiment } from '../services/userInteractionService';
 import {
   NewsArticle,
   SwipeDirection,
@@ -85,6 +86,24 @@ export default function NewsfeedScreen() {
       const nextSeen = [...seen, active.id];
       setSeen(nextSeen);
       setHistory((prev) => [...prev, { id: active.id, direction }]);
+
+      // Record sentiment when user likes an article (swipes right)
+      if (direction === 'right') {
+        try {
+          await recordSentiment(active.id, 'like');
+        } catch (error) {
+          console.error('Failed to record sentiment:', error);
+        }
+      }
+      
+      // Record sentiment when user passes an article (swipes left)
+      if (direction === 'left') {
+        try {
+          await recordSentiment(active.id, 'dislike');
+        } catch (error) {
+          console.error('Failed to record sentiment:', error);
+        }
+      }
 
       const remaining = cards.length - index - 1;
 
